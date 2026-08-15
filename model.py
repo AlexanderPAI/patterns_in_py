@@ -12,6 +12,10 @@ class OrderLine:
     qty: int
 
 
+class OutOfStock(Exception):
+    pass
+
+
 class Batch:
     def __init__(
             self,
@@ -62,6 +66,9 @@ class Batch:
 
 
 def allocate(line: OrderLine, batches: List[Batch]) -> str:
-    batch = next(b for b in sorted(batches) if b.can_allocate(line))
-    batch.allocate(line)
-    return batch.reference
+    try:
+        batch = next(b for b in sorted(batches) if b.can_allocate(line))
+        batch.allocate(line)
+        return batch.reference
+    except StopIteration:
+        raise OutOfStock(f"Артикула {line.sku} нет в наличии")
