@@ -105,6 +105,14 @@ def add_stock(postgres_session):
 
 
 @pytest.fixture
+def post_to_add_batch(add_stock):
+    def _post_to_add_batch(ref, sku, qty, eta):
+        add_stock([(ref, sku, qty, eta)])
+
+    return _post_to_add_batch
+
+
+@pytest.fixture
 def restart_api():
     (Path(__file__).parent / 'flask_app.py').touch()
     time.sleep(0.5)

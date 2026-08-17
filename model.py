@@ -46,6 +46,10 @@ class Batch:
     def available_quantity(self) -> int:
         return self._purchased_quantity - self.allocated_quantity
 
+    @property
+    def allocations(self) -> set[OrderLine]:
+        return self._allocations
+
     def can_allocate(self, line: OrderLine) -> bool:
         return self.sku == line.sku and self.available_quantity >= line.qty
 
