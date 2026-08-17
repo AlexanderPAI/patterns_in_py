@@ -1,6 +1,5 @@
-import model
-from orm import batches
-from repository import AbstractRepository
+from domain import model
+from adapters.repository import AbstractRepository
 
 
 class InvalidSku(Exception):

@@ -1,4 +1,4 @@
-from model import Batch
+from domain.model import Batch
 
 import abc
 

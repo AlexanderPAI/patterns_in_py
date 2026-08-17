@@ -1,10 +1,14 @@
 FROM python:3.9-slim-buster
 
-COPY requirements.txt /tmp
+WORKDIR /code
+
+COPY requirements.txt /tmp/requirements.txt
 RUN pip install --no-cache-dir -r /tmp/requirements.txt
 
-RUN mkdir -p /code
-COPY *.py /code/
-WORKDIR /code
-ENV FLASK_APP=flask_app.py FLASK_DEBUG=1 PYTHONBUFFERED=1
-CMD flask run --host=0.0.0.0 --port=5005
+COPY . /code/
+
+ENV PYTHONUNBUFFERED=1 \
+    FLASK_APP=entrypoints.flask_app:app \
+    FLASK_DEBUG=1
+
+CMD ["python", "-m", "flask", "run", "--host=0.0.0.0", "--port=5005"]

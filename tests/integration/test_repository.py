@@ -1,5 +1,5 @@
-from model import Batch, OrderLine
-from repository import SqlAlchemyRepository
+from domain.model import Batch, OrderLine
+from adapters.repository import SqlAlchemyRepository
 
 
 def inside_order_line(session):
