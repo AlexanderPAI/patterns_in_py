@@ -1,7 +1,9 @@
 import pytest
 
 import model
+import services
 from repository import AbstractRepository
+
 
 class FakeSession:
     commited = False
