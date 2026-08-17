@@ -4,7 +4,7 @@ from typing import Optional, List
 from datetime import date
 
 
-@dataclass(frozen=True)
+@dataclass(unsafe_hash=True)
 class OrderLine:
     # Немутируемый класс данных без какого-либо поведения
     orderid: str
@@ -45,6 +45,10 @@ class Batch:
     @property
     def available_quantity(self) -> int:
         return self._purchased_quantity - self.allocated_quantity
+
+    @property
+    def allocations(self) -> set[OrderLine]:
+        return self._allocations
 
     def can_allocate(self, line: OrderLine) -> bool:
         return self.sku == line.sku and self.available_quantity >= line.qty
