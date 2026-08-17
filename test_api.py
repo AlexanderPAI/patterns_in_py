@@ -1,5 +1,4 @@
-from distutils.command.config import config
-
+import config
 import pytest
 import requests
 
