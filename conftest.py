@@ -88,11 +88,11 @@ def add_stock(postgres_session):
 
     for batch_id in batches_added:
         postgres_session.execute(
-            "DELETE FROM batches WHERE batch_id = :batch_id",
+            "DELETE FROM allocations WHERE batch_id = :batch_id",
             dict(batch_id=batch_id)
         )
         postgres_session.execute(
-            "DELETE FROM batches WHERE id=:batch_id",
+            "DELETE FROM batches WHERE id = :batch_id",
             dict(batch_id=batch_id)
         )
 
