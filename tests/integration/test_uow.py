@@ -14,7 +14,7 @@ def insert_batch(session, ref, sku, qty, eta):
 
 def get_allocated_batch_ref(session, orderid, sku):
     [[orderlineid]] = session.execute(
-        'SELECT id FROM order_lines WHERE order_id = :orderid AND sku = :sku',
+        'SELECT id FROM order_lines WHERE orderid = :orderid AND sku = :sku',
         dict(orderid=orderid, sku=sku)
     )
     [[batchref]] = session.execute(
@@ -63,3 +63,4 @@ def test_rolls_back_on_error(session_factory):
     new_session = session_factory()
     rows = list(new_session.execute('SELECT * FROM "batches"'))
     assert rows == []
+

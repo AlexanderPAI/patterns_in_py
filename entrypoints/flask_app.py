@@ -1,18 +1,14 @@
 from datetime import datetime
 
 from flask import Flask, jsonify, request
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
 
-import config
+from service_layer import unit_of_work
 from domain import model
-from adapters import orm, repository
+from adapters import orm
 from service_layer import services
-from adapters.repository import SqlAlchemyRepository
 
-orm.start_mappers()
-get_session = sessionmaker(bind=create_engine(config.get_postgres_uri()))
 app = Flask(__name__)
+orm.start_mappers()
 
 
 def is_valid_sku(sku, batches):
@@ -21,8 +17,7 @@ def is_valid_sku(sku, batches):
 
 @app.route('/add_batch', methods=['POST'])
 def add_batch():
-    session = get_session()
-    repo = SqlAlchemyRepository(session)
+    uow = unit_of_work.SqlAlchemyUnitOfWork()
     eta = request.json['eta']
     if eta is not None:
         eta = datetime.fromisoformat(eta).date()
@@ -31,22 +26,19 @@ def add_batch():
         request.json['sku'],
         request.json['qty'],
         eta,
-        repo,
-        session,
+        uow,
     )
     return "OK", 201
 
 @app.route('/allocate', methods=['POST'])
 def allocate_endpoint():
-    session = get_session()
-    repo = SqlAlchemyRepository(session)
+    uow = unit_of_work.SqlAlchemyUnitOfWork()
     try:
         batchref = services.allocate(
             request.json['orderid'],
             request.json['sku'],
             request.json['qty'],
-            repo,
-            session,
+            uow,
         )
     except (model.OutOfStock, services.InvalidSku) as e:
         return jsonify({'message': str(e)}), 400
