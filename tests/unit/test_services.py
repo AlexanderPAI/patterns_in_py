@@ -55,7 +55,7 @@ def test_allocate_errors_invalid_sku():
     repo, session = FakeRepository([]), FakeSession()
     services.add_batch("b1", "AREALSKU", 100, None, repo, session)
     with pytest.raises(services.InvalidSku, match="Недопустимый артикул NONEXISTENTSKU"):
-        services.allocate("b1", "AREALSKU", 10, repo, session)
+        services.allocate("b1", "NONEXISTENTSKU", 10, repo, session)
 
 
 def test_commits():
