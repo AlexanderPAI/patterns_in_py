@@ -19,11 +19,11 @@ def is_valid_sku(sku, batches):
 
 
 def add_batch(
-    ref: str, sku: str, qty: int, eta: Optional[date],
-    repo: AbstractRepository, session,
+    ref: str, sku: str, qty: int, eta: Optional[date], uow: unit_of_work.AbstractUnitOfWork
 ) -> None:
-    repo.add(model.Batch(ref, sku, qty, eta))
-    session.commit()
+    with uow:
+        uow.batches.add(model.Batch(ref, sku, qty, eta))
+        uow.commit()
 
 
 def allocate(orderid: str, sku: str, qty: int, uow: unit_of_work.AbstractUnitOfWork) -> str:
