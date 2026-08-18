@@ -11,11 +11,9 @@ class AbstractUnitOfWork(abc.ABC):
     batches: repository.AbstractRepository       # UoW предоставляет атрибут .batches, который обеспечит доступ
                                                  # к репозиторию партий товара.
 
-    @abc.abstractmethod
     def __enter__(self) -> "AbstractUnitOfWork":
         return self
 
-    @abc.abstractmethod
     def __exit__(self, *args):                   # __enter__ и __exit__, которые выполняются соответственно при
                                                  # входе в блок with и при выходе из него. Это фазы наладки и демонтажа
         self.rollback()                          # Если мы не выполняем фиксацию или выходим из контекстного менеджера,
