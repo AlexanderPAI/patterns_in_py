@@ -25,7 +25,7 @@ def add_batch():
     repo = SqlAlchemyRepository(session)
     eta = request.json['eta']
     if eta is not None:
-        eta = datetime.fromtimestamp(eta)
+        eta = datetime.fromisoformat(eta).date()
     services.add_batch(
         request.json['ref'],
         request.json['sku'],
