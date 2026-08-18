@@ -1,3 +1,5 @@
+import pytest
+
 from domain import model
 from service_layer import unit_of_work
 
@@ -37,3 +39,27 @@ def test_uow_can_retrieve_a_batch_and_allocate_to_it(session_factory):
 
     batchref = get_allocated_batch_ref(session, "o1", "HIPSTER-WORKBENCH")
     assert batchref == "batch1"
+
+
+def test_rolls_back_uncommited_work_by_default(session_factory):
+    uow = unit_of_work.SqlAlchemyUnitOfWork(session_factory)
+    with uow:
+        insert_batch(uow.session, 'batch1', 'MEDIUM_PLINTH', 100, None)
+    new_session = session_factory()
+    rows = list(new_session.execute('SELECT * FROM "batches"'))
+    assert rows == []
+
+
+def test_rolls_back_on_error(session_factory):
+    class MyException(Exception):
+        pass
+
+    uow = unit_of_work.SqlAlchemyUnitOfWork(session_factory)
+    with pytest.raises(MyException):
+        with uow:
+            insert_batch(uow.session, 'batch1', 'LARGE-FORK', 100, None)
+            raise MyException()
+
+    new_session = session_factory()
+    rows = list(new_session.execute('SELECT * FROM "batches"'))
+    assert rows == []
