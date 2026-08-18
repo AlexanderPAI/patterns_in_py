@@ -1,20 +1,17 @@
-from domain.model import Batch
+from domain.model import Product
 
 import abc
 
 
-class AbstractRepository(abc.ABC):
+class AbstractProductRepository(abc.ABC):
     """Самый простой из возможных абстрактных репозиториев"""
-    # В реальной жизни абстрактные базовые классы удаляются из производственного кода, потому python
-    # легко игнорирует их и они в конечном итоге остаются без поддержки.
-    # Здесь абстрактные классы используются для наглядности интерфейсов в python
 
     @abc.abstractmethod
-    def add(self, batch: Batch):
+    def add(self, product: Product):
         raise NotImplementedError()
 
     @abc.abstractmethod
-    def get(self, reference: str) -> Batch:
+    def get(self, sku: str) -> Product:
         raise NotImplementedError()
 
 

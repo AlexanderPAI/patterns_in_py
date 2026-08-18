@@ -8,7 +8,7 @@ from adapters import repository
 
 
 class AbstractUnitOfWork(abc.ABC):
-    batches: repository.AbstractRepository       # UoW предоставляет атрибут .batches, который обеспечит доступ
+    products: repository.AbstractProductRepository      # UoW предоставляет атрибут .batches, который обеспечит доступ
                                                  # к репозиторию партий товара.
 
     def __enter__(self) -> "AbstractUnitOfWork":
