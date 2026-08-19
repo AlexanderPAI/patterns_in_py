@@ -3,7 +3,7 @@ from domain.model import Product
 import abc
 
 
-class AbstractProductRepository(abc.ABC):
+class AbstractRepository(abc.ABC):
     """Самый простой из возможных абстрактных репозиториев"""
 
     @abc.abstractmethod
@@ -23,9 +23,9 @@ class SqlAlchemyRepository(AbstractRepository):
     def add(self, batch):
         self.session.add(batch)
 
-    def get(self, reference: str):
-        return self.session.query(Batch).filter_by(reference=reference).one()
+    def get(self, sku: str):
+        return self.session.query(Product).filter_by(sku=sku).one()
 
     def list(self):
-        return self.session.query(Batch).all()
+        return self.session.query(Product).all()
 

@@ -8,7 +8,7 @@ from adapters import repository
 
 
 class AbstractUnitOfWork(abc.ABC):
-    products: repository.AbstractProductRepository      # UoW предоставляет атрибут .batches, который обеспечит доступ
+    products: repository.AbstractRepository      # UoW предоставляет атрибут .batches, который обеспечит доступ
                                                  # к репозиторию партий товара.
 
     def __enter__(self) -> "AbstractUnitOfWork":
@@ -41,7 +41,7 @@ class SqlAlchemyUnitOfWork(AbstractUnitOfWork):
 
     def __enter__(self):
         self.session = self.session_factory()
-        self.batches = repository.SqlAlchemyRepository(self.session)
+        self.products = repository.SqlAlchemyRepository(self.session)
         return super().__enter__()
 
     def __exit__(self, *args):
