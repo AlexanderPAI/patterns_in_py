@@ -1,5 +1,7 @@
 from src.allocation.domain import events
 
+from src.allocation.adapters import email
+
 
 def handle(event: events.OutOfStock):
     for handler in HANDLERS[type(event)]:
