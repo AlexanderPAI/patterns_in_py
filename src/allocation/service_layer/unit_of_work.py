@@ -10,10 +10,9 @@ from src.allocation.service_layer import messagebus
 
 
 class AbstractUnitOfWork(abc.ABC):
-    products: repository.AbstractRepository      # UoW предоставляет атрибут .batches, который обеспечит доступ
-                                                 # к репозиторию партий товара.
+    products: repository.AbstractRepository
 
-    def __enter__(self) -> "AbstractUnitOfWork":
+    def __enter__(self) -> AbstractUnitOfWork:
         return self
 
     def __exit__(self, *args):
@@ -26,7 +25,7 @@ class AbstractUnitOfWork(abc.ABC):
     def publish_events(self):
         for product in self.products.seen:
             while product.events:
-                event = product.events.pop()
+                event = product.events.pop(0)
                 messagebus.handle(event)
 
     @abc.abstractmethod

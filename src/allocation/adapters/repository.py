@@ -29,7 +29,6 @@ class AbstractRepository(abc.ABC):
 
 
 class SqlAlchemyRepository(AbstractRepository):
-
     def __init__(self, session):
         super().__init__()
         self.session = session
@@ -39,7 +38,3 @@ class SqlAlchemyRepository(AbstractRepository):
 
     def _get(self, sku):
         return self.session.query(Product).filter_by(sku=sku).first()
-
-    def list(self):
-        return self.session.query(Product).all()
-
