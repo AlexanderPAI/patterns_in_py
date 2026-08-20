@@ -1,9 +1,9 @@
 import pytest
 from datetime import date, timedelta
 
-from domain import model
-from service_layer import services, unit_of_work
-from adapters.repository import AbstractRepository
+from src.allocation.service_layer import unit_of_work
+from src.allocation.service_layer import services
+from src.allocation.adapters.repository import AbstractRepository
 
 
 today = date.today()
@@ -19,27 +19,19 @@ class FakeSession:
 
 
 class FakeRepository(AbstractRepository):
+    def __init__(self, products):
+        self._products = set(products)
 
-    def __init__(self, batches):
-        self._batches = batches
+    def add(self, product):
+        self._products.add(product)
 
-    @staticmethod
-    def for_batch(ref, sku, qty, eta):
-        return FakeRepository([model.Batch(ref, sku, qty, eta)])
-
-    def add(self, batch):
-        self._batches.append(batch)
-
-    def get(self, reference):
-        return next(b for b in self._batches if b.reference == reference)
-
-    def list(self):
-        return list(self._batches)
+    def get(self, sku):
+        return next((p for p in self._products if p.sku == sku), None)
 
 
 class FakeUnitOfWork(unit_of_work.AbstractUnitOfWork):
     def __init__(self):
-        self.batches = FakeRepository([])
+        self.products = FakeRepository([])
         self.committed = False
 
     def commit(self):
@@ -49,10 +41,22 @@ class FakeUnitOfWork(unit_of_work.AbstractUnitOfWork):
         pass
 
 
-def test_add_batch():
+class FakeUnitOfWork(unit_of_work.AbstractUnitOfWork):
+    def __init__(self):
+        self.products = FakeRepository([])
+        self.committed = False
+
+    def commit(self):
+        self.committed = True
+
+    def rollback(self):
+        pass
+
+
+def test_add_batch_for_new_product():
     uow = FakeUnitOfWork()
-    services.add_batch('b1', 'CRUNCHY-ARMCHAIR', 100, None, uow)
-    assert uow.batches.get('b1') is not None
+    services.add_batch("b1", "CRUNCHY-ARMCHAIR", 100, None, uow)
+    assert uow.products.get("CRUNCHY-ARMCHAIR") is not None
     assert uow.committed
 
 

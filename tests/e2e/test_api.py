@@ -1,23 +1,8 @@
-import uuid
-import config
+from src.allocation import config
 import pytest
 import requests
 
-
-def random_suffix():
-    return uuid.uuid4().hex[:6]
-
-
-def random_sku(name=""):
-    return f"sku-{name}-{random_suffix()}"
-
-
-def random_batchref(name=""):
-    return f"batch-{name}-{random_suffix()}"
-
-
-def random_orderid(name=""):
-    return f"order-{name}-{random_suffix()}"
+from tests.random_refs import random_sku, random_orderid, random_batchref
 
 
 def post_to_add_batch(ref, sku, qty, eta):
@@ -40,7 +25,7 @@ def test_happy_path_returns_201_and_allocated_batch():
     post_to_add_batch(otherbatch, othersku, 100, None)
     data = {'orderid': random_orderid(), 'sku': sku, 'qty': 3}
 
-    url =config.get_api_url()
+    url = config.get_api_url()
     r = requests.post(f"{url}/allocate", json=data)
 
     assert r.status_code == 201
