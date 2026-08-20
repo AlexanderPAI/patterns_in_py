@@ -1,7 +1,9 @@
 from dataclasses import dataclass
-from typing import Optional, List
+from typing import Optional, List, Union
 
 from datetime import date
+
+from src.allocation.domain import events
 
 
 class OutOfStock(Exception):
@@ -14,15 +16,17 @@ class Product:
         self.sku = sku
         self.batches = batches
         self.version_number = version_number
+        self.events = []
 
-    def allocate(self, line: "OrderLine") -> str:
+    def allocate(self, line: "OrderLine") -> Union[str, None]:
         try:
             batch = next(b for b in sorted(self.batches) if b.can_allocate(line))
             batch.allocate(line)
             self.version_number += 1
             return batch.reference
         except StopIteration:
-            raise OutOfStock(f"Артикула {line.sku} нет в наличии")
+            self.events.append(events.OutOfStock(sku=line.sku))
+            return None
 
 
 @dataclass(unsafe_hash=True)

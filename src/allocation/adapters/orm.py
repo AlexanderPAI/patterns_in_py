@@ -1,4 +1,4 @@
-from sqlalchemy import Table, Column, Integer, String, Date, ForeignKey
+from sqlalchemy import Table, Column, Integer, String, Date, ForeignKey, event
 
 from sqlalchemy.orm import mapper, relationship
 from sqlalchemy.sql.schema import MetaData
@@ -56,5 +56,12 @@ def start_mappers():
         },
     )
     mapper(
-        Product, products, properties={"batches": relationship(batches_mapper)}
+        Product,
+        products,
+        properties={"batches": relationship(batches_mapper)},
     )
+
+
+@event.listens_for(Product, "load")
+def receive_load(product, _):
+    product.events = []
