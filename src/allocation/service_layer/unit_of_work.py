@@ -1,7 +1,9 @@
+from __future__ import annotations
 import abc
 
-from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm.session import Session
 
 from src.allocation import config
 from src.allocation.adapters import repository
@@ -14,14 +16,12 @@ class AbstractUnitOfWork(abc.ABC):
     def __enter__(self) -> "AbstractUnitOfWork":
         return self
 
-    def __exit__(self, *args):                   # __enter__ и __exit__, которые выполняются соответственно при
-                                                 # входе в блок with и при выходе из него. Это фазы наладки и демонтажа
-        self.rollback()                          # Если мы не выполняем фиксацию или выходим из контекстного менеджера,
-                                                 # инициировав ошибку, то выполняем откат
+    def __exit__(self, *args):
+        self.rollback()
+
 
     @abc.abstractmethod
-    def commit(self):                            # Вызовем этот метод, чтобы явно зафиксировать работу,
-                                                 # когда мы будем готовы
+    def commit(self):
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -29,12 +29,12 @@ class AbstractUnitOfWork(abc.ABC):
         raise NotImplementedError
 
 
-# Настоящий UoW использует сеансы SQLAlchemy
-
-DEFAULT_SESSION_FACTORY = sessionmaker(bind=create_engine(
-    config.get_postgres_uri(),
-    # isolation_level="REPEATABLE READ",
-))
+DEFAULT_SESSION_FACTORY = sessionmaker(
+    bind=create_engine(
+        config.get_postgres_uri(),
+        isolation_level="REPEATABLE READ",
+    )
+)
 
 
 class SqlAlchemyUnitOfWork(AbstractUnitOfWork):

@@ -24,10 +24,7 @@ class SqlAlchemyRepository(AbstractRepository):
         self.session.add(batch)
 
     def get(self, sku):
-        return self.session.query(Product) \
-            .filter_by(sku=sku) \
-            .with_for_update() \
-            .first()
+        return self.session.query(Product).filter_by(sku=sku).first()
 
     def list(self):
         return self.session.query(Product).all()
