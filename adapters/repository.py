@@ -23,8 +23,11 @@ class SqlAlchemyRepository(AbstractRepository):
     def add(self, batch):
         self.session.add(batch)
 
-    def get(self, sku: str):
-        return self.session.query(Product).filter_by(sku=sku).one()
+    def get(self, sku):
+        return self.session.query(Product) \
+            .filter_by(sku=sku) \
+            .with_for_update() \
+            .first()
 
     def list(self):
         return self.session.query(Product).all()

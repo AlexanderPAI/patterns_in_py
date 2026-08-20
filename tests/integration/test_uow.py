@@ -3,6 +3,7 @@ import traceback
 import threading
 
 import pytest
+from sqlalchemy import text
 
 from domain import model
 from service_layer import unit_of_work
@@ -81,7 +82,7 @@ def try_to_allocate(orderid, sku, exceptions):
         with unit_of_work.SqlAlchemyUnitOfWork() as uow:
             product = uow.products.get(sku=sku)
             product.allocate(line)
-            time.sleep(0.2)
+            time.sleep(0.3)
             uow.commit()
     except Exception as e:
         print(traceback.format_exc())
