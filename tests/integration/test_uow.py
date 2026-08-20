@@ -3,12 +3,11 @@ import traceback
 import threading
 
 import pytest
-from sqlalchemy import text
 
-from domain import model
-from service_layer import unit_of_work
+from src.allocation.domain import model
+from src.allocation.service_layer import unit_of_work
 
-from tests.random_refs import random_sku, random_orderid, random_batchref, random_suffix
+from tests.random_refs import random_sku, random_orderid, random_batchref
 
 
 def insert_batch(session, ref, sku, qty, eta, product_version=1):

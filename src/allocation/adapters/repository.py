@@ -1,4 +1,4 @@
-from domain.model import Product
+from src.allocation.domain.model import Product
 
 import abc
 

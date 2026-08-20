@@ -1,9 +1,9 @@
 import pytest
 from datetime import date, timedelta
 
-from domain import model
-from service_layer import services, unit_of_work
-from adapters.repository import AbstractRepository
+from src.allocation.service_layer import unit_of_work
+from src.allocation.service_layer import services
+from src.allocation.adapters.repository import AbstractRepository
 
 
 today = date.today()

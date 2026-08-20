@@ -2,10 +2,10 @@ from datetime import datetime
 
 from flask import Flask, jsonify, request
 
-from service_layer import unit_of_work
-from domain import model
-from adapters import orm
-from service_layer import services
+from src.allocation.service_layer import unit_of_work
+from src.allocation.domain import model
+from src.allocation.adapters import orm
+from src.allocation.service_layer import services
 
 app = Flask(__name__)
 orm.start_mappers()

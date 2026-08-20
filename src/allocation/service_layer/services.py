@@ -1,10 +1,8 @@
 from datetime import date
 from typing import Optional
 
-from domain import model
-from adapters.repository import AbstractRepository
-from domain.model import OrderLine
-from service_layer import unit_of_work
+from src.allocation.domain import model
+from src.allocation.service_layer import unit_of_work
 
 class InvalidSku(Exception):
     pass
@@ -31,7 +29,7 @@ def add_batch(
 
 
 def allocate(orderid: str, sku: str, qty: int, uow: unit_of_work.AbstractUnitOfWork) -> str:
-    line = OrderLine(orderid, sku, qty)
+    line = model.OrderLine(orderid, sku, qty)
     with uow: # 1 Запускаем контекстный менеджер
         product = uow.products.get(sku=line.sku)
         if product is None:

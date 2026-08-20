@@ -3,7 +3,7 @@ from sqlalchemy import Table, Column, Integer, String, Date, ForeignKey
 from sqlalchemy.orm import mapper, relationship
 from sqlalchemy.sql.schema import MetaData
 
-from domain.model import  Batch, OrderLine, Product
+from src.allocation.domain.model import  Batch, OrderLine, Product
 
 metadata = MetaData()
 
