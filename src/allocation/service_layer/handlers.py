@@ -1,4 +1,6 @@
 from __future__ import annotations
+
+from itertools import product
 from typing import Optional
 from datetime import date
 
@@ -36,3 +38,13 @@ def send_out_of_stock_notification(event: events.OutOfStock, uow: unit_of_work.A
         'stock@made.com',
         f'Артикула {event.sku} нет в наличии',
     )
+
+
+def change_batch_quantity(
+        event: events.BatchQuantityChanged,
+        uow: unit_of_work.AbstractUnitOfWork,
+):
+    with uow:
+        product = uow.products.get_by_batchref(batchref=event.ref)
+        product.change_batch_quantity(ref=event.ref, qty=event.qty)
+        uow.commit()

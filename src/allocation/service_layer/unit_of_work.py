@@ -24,8 +24,6 @@ class AbstractUnitOfWork(abc.ABC):
     def collect_new_events(self):
         for product in self.products.seen:
             while product.events:
-                event = product.events.pop(0)
-                messagebus.handle(event)
                 yield product.events.pop(0)
 
     @abc.abstractmethod
