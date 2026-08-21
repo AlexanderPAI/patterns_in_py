@@ -1,19 +1,29 @@
+from __future__ import annotations
+from typing import List, Dict, Callable, Type, TYPE_CHECKING
 from src.allocation.domain import events
+from . import handlers
 
-from src.allocation.adapters import email
-
-
-def handle(event: events.OutOfStock):
-    for handler in HANDLERS[type(event)]:
-        handler(event)
+if TYPE_CHECKING:
+    from . import unit_of_work
 
 
-def send_out_of_stock_notification(event: events.OutOfStock):
-    email.send_mail(
-        'stock@made.com',
-        f'Артикула {event.sku} нет в наличии',
-    )
+def handle(
+    event: events.Event,
+    uow: unit_of_work.AbstractUnitOfWork,
+):
+    results = []
+    queue = [event]
+    while queue:
+        event = queue.pop(0)
+        for handler in HANDLERS[type(event)]:
+            results.append(handler(event, uow=uow))
+            queue.extend(uow.collect_new_events())
+    return results
+
 
 HANDLERS = {
-    events.OutOfStock: [send_out_of_stock_notification],
-}
+    events.BatchCreated: [handlers.add_batch],
+    # events.BatchQuantityChanged: [handlers.change_batch_quantity],
+    events.AllocationRequired: [handlers.allocate],
+    events.OutOfStock: [handlers.send_out_of_stock_notification],
+}  # type: Dict[Type[events.Event], List[Callable]]
