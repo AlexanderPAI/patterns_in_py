@@ -69,38 +69,30 @@ docker compose down
 
 ## Запуск тестов
 
-Все тесты можно запустить внутри Docker, не устанавливая Python и зависимости локально.
+Тесты запускаются внутри работающего контейнера `api`.
 
-1. Запустите сервисы в фоне:
+Сначала запустите сервисы в фоновом режиме:
 
-   ```bash
-   docker compose up --build -d
-   ```
+```bash
+docker compose up --build -d
+```
 
-2. Запустите тесты в отдельном контейнере:
+Запустите все тесты:
 
-   ```bash
-   docker compose run --rm -e API_HOST=api api pytest
-   ```
+```bash
+docker compose exec api pytest
+```
 
 Отдельные наборы тестов можно запустить так:
 
 ```bash
-docker compose run --rm api pytest tests/unit
-docker compose run --rm api pytest tests/integration
-docker compose run --rm -e API_HOST=api api pytest tests/e2e
+docker compose exec api pytest tests/unit
+docker compose exec api pytest tests/integration
+docker compose exec api pytest tests/e2e
 ```
 
-Для подробного вывода добавьте Pytest флаг `-v` в конец команды.
-
-### Локальный запуск тестов
-
-При желании тесты можно запускать на хосте. Для этого создайте виртуальное окружение, установите зависимости и предварительно запустите сервисы через Docker Compose:
+Для подробного вывода добавьте флаг `-v`:
 
 ```bash
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-docker compose up --build -d
-pytest
+docker compose exec api pytest -v
 ```
