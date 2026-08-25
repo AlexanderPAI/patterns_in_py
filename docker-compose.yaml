@@ -16,8 +16,8 @@ services:
       - EMAIL_HOST=mailhog
       - PYTHONDONTWRITEBYTECODE=1
     volumes:
-      - ./src:/src
-      - ./tests:/tests
+      - ./src:/code/src
+      - ./tests:/code/tests
     entrypoint:
       - python
       - -m
@@ -39,8 +39,8 @@ services:
       - EMAIL_HOST=mailhog
       - PYTHONDONTWRITEBYTECODE=1
     volumes:
-      - ./src:/src
-      - ./tests:/tests
+      - ./src:/code/src
+      - ./tests:/code/tests
     ports:
       - "5005:80"
 
