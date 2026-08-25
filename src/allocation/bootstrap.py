@@ -22,8 +22,8 @@ def inject_dependencies(handler, dependencies):
 
 def bootstrap(
         start_orm: bool = True,
-        uow: unit_of_work.AbstractUnitOfWork = unit_of_work.SqlAlchemyUnitOfWork,
-        notifications: AbstractNotifications = EmailNotifications(),
+        uow: unit_of_work.AbstractUnitOfWork = unit_of_work.SqlAlchemyUnitOfWork(),
+        notifications: AbstractNotifications = None,
         publish: Callable = redis_eventpublisher.publish,
 ) -> messagebus.MessageBus:
 

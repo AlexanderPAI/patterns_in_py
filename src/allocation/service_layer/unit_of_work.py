@@ -21,13 +21,18 @@ class AbstractUnitOfWork(abc.ABC):
     def commit(self):
         self._commit()
 
-    def collect_new_messages(uow):
-        for product in uow.products.seen:
+    def collect_new_messages(self):
+        for product in self.products.seen:
             while product.events:
                 yield product.events.pop(0)
 
-            while product.events:
-                yield product.events.pop(0)
+    @abc.abstractmethod
+    def _commit(self):
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def rollback(self):
+        raise NotImplementedError
 
 
     @abc.abstractmethod
@@ -48,7 +53,6 @@ DEFAULT_SESSION_FACTORY = sessionmaker(
 
 
 class SqlAlchemyUnitOfWork(AbstractUnitOfWork):
-
     def __init__(self, session_factory=DEFAULT_SESSION_FACTORY):
         self.session_factory = session_factory
 
@@ -66,4 +70,3 @@ class SqlAlchemyUnitOfWork(AbstractUnitOfWork):
 
     def rollback(self):
         self.session.rollback()
-

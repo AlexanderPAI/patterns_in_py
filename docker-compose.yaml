@@ -8,10 +8,12 @@ services:
     depends_on:
       - postgres
       - redis
+      - mailhog
     environment:
       - DB_HOST=postgres
       - DB_PASSWORD=abc123
       - REDIS_HOST=redis
+      - EMAIL_HOST=mailhog
       - PYTHONDONTWRITEBYTECODE=1
     volumes:
       - ./src:/src
