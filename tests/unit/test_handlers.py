@@ -1,10 +1,14 @@
 from datetime import date
+from collections import defaultdict
 
+
+from src.allocation.adapters import notifications
 from src.allocation.domain.model import Product
 from src.allocation.service_layer import unit_of_work
 from src.allocation.adapters.repository import AbstractRepository
 from src.allocation.service_layer import messagebus
 from src.allocation.domain import events, commands
+from src.allocation import bootstrap
 
 
 class FakeSession:
@@ -44,6 +48,25 @@ class FakeUnitOfWork(unit_of_work.AbstractUnitOfWork):
         pass
 
 
+class FakeNotifications(notifications.AbstractNotifications):
+    def __init__(self):
+        self.sent = defaultdict(list)  # тип: Dict[str, List[str]]
+
+    def send(self, destination, message):
+        self.sent[destination].append(message)
+
+
+def bootstrap_test_app():
+    return bootstrap.bootstrap(
+        start_orm=False,
+        uow=FakeUnitOfWork(),
+        notifications=FakeNotifications(),
+        publish=lambda *args: None,
+
+    )
+
+
+
 class TestAddBatch:
 
     def test_for_new_product(self):
@@ -66,6 +89,21 @@ class TestAllocate:
         messagebus.handle(commands.CreateBatch("batch1", "COMPLICATED-LAMP", 100, None), uow)
         result = messagebus.handle(commands.Allocate("o1", "COMPLICATED-LAMP", 10), uow)
         assert result.pop(0) == "batch1"
+
+    def test_sends_email_on_out_of_stock_error(self):
+        fake_notifs = FakeNotifications()
+
+        bus = bootstrap.bootstrap(
+            start_orm=False,
+            uow=FakeUnitOfWork(),
+            notifications=fake_notifs,
+            publish=lambda *args: None,
+        )
+        bus.handle(commands.CreateBatch("b1", "POPULAR-CURTAINS", 9, None))
+        bus.handle(commands.Allocate("o1", "POPULAR-CURTAINS", 10))
+        assert fake_notifs.sent['stock@made.com'] == [
+            f"POPULAR-CURTAINS нет в наличии",
+        ]
 
 
 class TestChangeBatchQuantity:

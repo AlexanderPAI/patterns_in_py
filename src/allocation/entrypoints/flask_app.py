@@ -7,10 +7,11 @@ from src.allocation.adapters import orm
 from src.allocation.service_layer import handlers
 from src.allocation.domain import events, commands
 from src.allocation.service_layer.unit_of_work import SqlAlchemyUnitOfWork
-from src.allocation import views
+from src.allocation import bootstrap, views
 
 app = Flask(__name__)
-orm.start_mappers()
+
+bus = bootstrap.bootstrap()
 
 
 def is_valid_sku(sku, batches):
@@ -29,7 +30,7 @@ def add_batch():
         request.json['qty'],
         eta,
     )
-    handlers.add_batch(command, SqlAlchemyUnitOfWork())
+    bus.handle(command)
     return "OK", 201
 
 @app.route("/allocate", methods=["POST"])
