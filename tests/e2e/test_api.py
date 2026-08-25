@@ -7,15 +7,6 @@ from tests.e2e import api_client
 from tests.random_refs import random_sku, random_orderid, random_batchref
 
 
-def post_to_add_batch(ref, sku, qty, eta):
-    url = config.get_api_url()
-    r = requests.post(
-        f"{url}/add_batch",
-        json={'ref': ref, 'sku': sku, 'qty': qty, 'eta': eta},
-    )
-    assert r.status_code == 201
-
-
 @pytest.mark.usefixtures("postgres_db")
 @pytest.mark.usefixtures("restart_api")
 def test_happy_path_returns_202_and_batch_is_allocated():

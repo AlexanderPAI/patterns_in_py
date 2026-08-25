@@ -7,10 +7,11 @@ from src.allocation.adapters import orm
 from src.allocation.service_layer import handlers
 from src.allocation.domain import events, commands
 from src.allocation.service_layer.unit_of_work import SqlAlchemyUnitOfWork
-from src.allocation import views
+from src.allocation import bootstrap, views
 
 app = Flask(__name__)
-orm.start_mappers()
+
+bus = bootstrap.bootstrap()
 
 
 def is_valid_sku(sku, batches):
@@ -29,7 +30,7 @@ def add_batch():
         request.json['qty'],
         eta,
     )
-    handlers.add_batch(command, SqlAlchemyUnitOfWork())
+    bus.handle(command)
     return "OK", 201
 
 @app.route("/allocate", methods=["POST"])
@@ -38,8 +39,7 @@ def allocate_endpoint():
         cmd = commands.Allocate(
             request.json["orderid"], request.json["sku"], request.json["qty"]
         )
-        uow = unit_of_work.SqlAlchemyUnitOfWork()
-        messagebus.handle(cmd, uow)
+        bus.handle(cmd)
     except handlers.InvalidSku as e:
         return {"message": str(e)}, 400
 
@@ -48,8 +48,7 @@ def allocate_endpoint():
 
 @app.route('/allocations/<orderid>', methods=['GET'])
 def allocations_view_endpoint(orderid):
-    uow = unit_of_work.SqlAlchemyUnitOfWork()
-    result = views.allocations(orderid, uow)
+    result = views.allocations(orderid, bus.uow)
     if not result:
         return 'not found', 404
     return jsonify(result), 200
