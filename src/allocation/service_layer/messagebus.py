@@ -1,6 +1,8 @@
 from __future__ import annotations
+
 from typing import List, Dict, Callable, Type, TYPE_CHECKING, Union
 import logging
+from tenacity import Retrying, RetryError, stop_after_attempt, wait_exponential
 
 from src.allocation.domain import events, commands
 from src.allocation.service_layer import handlers
@@ -15,23 +17,31 @@ logger = logging.getLogger(__name__)
 Message = Union[events.Event, commands.Command]
 
 
-def handle_event(event: events.Event, queue: List[Message], uow: unit_of_work.AbstractUnitOfWork):
-    for handler in EVENT_HANDLERS(type(event)):
+def handle_event(event: events.Event, queue : List[Message], uow: unit_of_work.AbstractUnitOfWork):
+    for handler in EVENT_HANDLERS[type(event)]:
         try:
-            logger.debug('handling event %s with handler %s', event, handler)
-            handler(event, uow)
-            queue.extend(uow.collect_new_events())
-        except Exception:
-            logger.exception('Exception handling event %s', event)
+            for attempt in Retrying(
+                stop=stop_after_attempt(3),
+                wait=wait_exponential(),
+            ):
+                with attempt:
+                    logger.debug(f"Обработка события %s обработчиком %s", event, handler)
+                    handler(event, uow)
+                    queue.extend(uow.collect_new_messages())
+        except RetryError as retry_failure:
+            logger.error(
+                'Не получилсоь обработать событие %s раз, отказ!',
+                retry_failure.last_attempt.attempt_number
+            )
             continue
 
 
 def handle_command(command: commands.Command, queue: List[Message], uow: unit_of_work.AbstractUnitOfWork):
     logger.debug("handling command %s", command)
     try:
-        handler = COMMAND_HANDLERS(type(command))
+        handler = COMMAND_HANDLERS[type(command)]
         result = handler(command, uow)
-        queue.extend(uow.collect_new_events())
+        queue.extend(uow.collect_new_messages())
         return result
     except Exception:
         logger.exception('Exception handling command %s', command)
@@ -65,9 +75,9 @@ COMMAND_HANDLERS = {
 }
 
 
-HANDLERS = {
-    events.BatchCreated: [handlers.add_batch],
-    events.BatchQuantityChanged: [handlers.change_batch_quantity],
-    events.AllocationRequired: [handlers.allocate],
-    events.OutOfStock: [handlers.send_out_of_stock_notification],
-}  # type: Dict[Type[events.Event], List[Callable]]
+# HANDLERS = {
+#     events.BatchCreated: [handlers.add_batch],
+#     events.BatchQuantityChanged: [handlers.change_batch_quantity],
+#     events.AllocationRequired: [handlers.allocate],
+#     events.OutOfStock: [handlers.send_out_of_stock_notification],
+# }  # type: Dict[Type[events.Event], List[Callable]]
