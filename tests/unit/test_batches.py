@@ -41,3 +41,10 @@ def test_allocation_is_idempotent():
     batch.allocate(line)
     batch.allocate(line)
     assert batch.available_quantity == 18
+
+
+def test_allocation_to_a_batch_reduced_the_available_quantity():
+    batch = Batch('batch-001', 'SMALL-TABLE', qty=20, eta=date.today())
+    line = OrderLine('order-ref', 'SMALL-TABLE', qty=2)
+    batch.allocate(line)
+    assert batch.available_quantity == 18
