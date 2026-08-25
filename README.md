@@ -28,3 +28,79 @@
 - интеграцию сервисов через асинхронные события;
 - CQRS и разделение моделей чтения и записи;
 - внедрение зависимостей и начальную загрузку приложения.
+
+## Стек
+
+- Python 3.9 и Flask — HTTP API;
+- SQLAlchemy и PostgreSQL — хранение данных;
+- Redis Pub/Sub — обмен событиями;
+- MailHog — локальная проверка отправки email;
+- Pytest — модульные, интеграционные и сквозные тесты;
+- Docker и Docker Compose — запуск приложения и инфраструктуры.
+
+## Запуск в Docker Compose
+
+Для запуска понадобятся Docker и Docker Compose.
+
+Соберите образы и запустите все сервисы:
+
+```bash
+docker compose up --build
+```
+
+После запуска доступны:
+
+- API — <http://localhost:5005>;
+- веб-интерфейс MailHog — <http://localhost:18025>;
+- PostgreSQL — `localhost:54321`;
+- Redis — `localhost:63791`.
+
+Чтобы запустить сервисы в фоновом режиме:
+
+```bash
+docker compose up --build -d
+```
+
+Остановить контейнеры можно командой:
+
+```bash
+docker compose down
+```
+
+## Запуск тестов
+
+Все тесты можно запустить внутри Docker, не устанавливая Python и зависимости локально.
+
+1. Запустите сервисы в фоне:
+
+   ```bash
+   docker compose up --build -d
+   ```
+
+2. Запустите тесты в отдельном контейнере:
+
+   ```bash
+   docker compose run --rm -e API_HOST=api api pytest
+   ```
+
+Отдельные наборы тестов можно запустить так:
+
+```bash
+docker compose run --rm api pytest tests/unit
+docker compose run --rm api pytest tests/integration
+docker compose run --rm -e API_HOST=api api pytest tests/e2e
+```
+
+Для подробного вывода добавьте Pytest флаг `-v` в конец команды.
+
+### Локальный запуск тестов
+
+При желании тесты можно запускать на хосте. Для этого создайте виртуальное окружение, установите зависимости и предварительно запустите сервисы через Docker Compose:
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+docker compose up --build -d
+pytest
+```
