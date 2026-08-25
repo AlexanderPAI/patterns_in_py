@@ -1,4 +1,5 @@
-from src.allocation.domain.model import Product
+from src.allocation.domain.model import Product, Batch
+from src.allocation.adapters import orm
 
 import abc
 
@@ -49,5 +50,10 @@ class SqlAlchemyRepository(AbstractRepository):
     def _get(self, sku):
         return self.session.query(Product).filter_by(sku=sku).first()
 
-    def _get_by_batchref(self, batchref: str):
-        return self.session.query(Product).filter_by(batchref=batchref).first()
+    def _get_by_batchref(self, batchref):
+        return (
+            self.session.query(Product)
+            .join(Batch)
+            .filter(orm.batches.c.reference == batchref)
+            .first()
+        )
